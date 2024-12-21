@@ -14,17 +14,29 @@ const Container = styled.div`
 
 const Title = styled.h2``;
 
+const SearchInput = styled.input`
+  padding: 10px;
+  margin: 20px 0;
+  width: 250px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+`;
+
 function UserList() {
   const [users, setUsers] = useState([]);
+  const [sortedUsers, setSortedUsers] = useState([]);
   const [onEdit, setOnEdit] = useState(null);
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
+  const [sortColumn, setSortColumn] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
   const usersPerPage = 5;
 
   const getUsers = async () => {
     try {
       const res = await axios.get("http://localhost:8800/users");
-      setUsers(res.data.sort((a, b) => (a.name > b.name ? 1 : -1)));
+      setUsers(res.data);
+      setSortedUsers(res.data);
     } catch (error) {
       toast.error(error.message);
     }
@@ -34,30 +46,76 @@ function UserList() {
     getUsers();
   }, []);
 
+  const handleSort = (column) => {
+    const newOrder = sortColumn === column && sortOrder === "asc" ? "desc" : "asc";
+    setSortColumn(column);
+    setSortOrder(newOrder);
+
+    const sorted = [...sortedUsers].sort((a, b) => {
+      if (a[column] < b[column]) return newOrder === "asc" ? -1 : 1;
+      if (a[column] > b[column]) return newOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setSortedUsers(sorted);
+    setCurrentPage(0); // Reset page number when sorting
+  };
+
+  // Филтриране на потребители по търсене
+  const filteredUsers = sortedUsers.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    user.phone.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Разделяне на потребителите на страници след филтриране
   const startIndex = currentPage * usersPerPage;
-  const currentUsers = users.slice(startIndex, startIndex + usersPerPage);
+  const currentUsers = filteredUsers.slice(startIndex, startIndex + usersPerPage);
 
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8800/users/${id}`);
+      const newArray = users.filter((user) => user.id !== id);
+      setUsers(newArray);
+      toast.success("User deleted successfully");
+    } catch (error) {
+      toast.error("Error deleting user.");
+    }
+  };
+
   return (
     <Container>
       <Title>Users</Title>
-
+      <SearchInput
+        type="text"
+        placeholder="Search by name, email, or phone"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)} 
+      />
       {onEdit ? (
         <EditUser
           onEdit={onEdit}
           setOnEdit={setOnEdit}
-          getUsers={getUsers} // Подаваме функцията за опресняване на потребителите
+          getUsers={getUsers}
         />
       ) : (
         <>
-          <Grid setOnEdit={setOnEdit} users={currentUsers} setUsers={setUsers} />
+          <Grid
+            users={currentUsers}  // Показваме само текущите потребители за тази страница
+            handleSort={handleSort}
+            sortColumn={sortColumn}
+            sortOrder={sortOrder}
+            setOnEdit={setOnEdit}
+            handleDelete={handleDelete}
+          />
           <ReactPaginate
             previousLabel={"Previous"}
             nextLabel={"Next"}
-            pageCount={Math.ceil(users.length / usersPerPage)}
+            pageCount={Math.ceil(filteredUsers.length / usersPerPage)}  // Пагинираме филтрираните резултати
             onPageChange={handlePageClick}
             containerClassName={"pagination"}
             activeClassName={"active"}
