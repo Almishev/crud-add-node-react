@@ -15,6 +15,33 @@ const Global = createGlobalStyle`
     justify-content: center;
     background-color: #f2f2f2;
   }
+
+  .pagination {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 10px;
+  gap: 10px;
+}
+
+.page {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #f9f9f9;
+}
+
+.page:hover {
+  background-color: #ddd;
+}
+
+.active {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+
 `;
 
 export default Global;

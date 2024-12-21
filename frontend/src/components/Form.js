@@ -53,48 +53,52 @@ const Form = ({ getUsers, onEdit, setOnEdit }) => {
     }
   }, [onEdit]);
 
+ 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const user = ref.current;
-
-    if (
-      !user.name.value ||
-      !user.email.value ||
-      !user.phone.value
-    ) {
-      return toast.warn("Fill  all fields!");
+  
+    if (!user.name.value || !user.email.value || !user.phone.value) {
+      return toast.warn("Fill all fields!");
     }
-
+  
     const currentDate = new Date().toISOString().split("T")[0];
-
+  
     const userData = {
       name: user.name.value,
       email: user.email.value,
       phone: user.phone.value,
       data_join: currentDate,
     };
-
-    if (onEdit) {
-      await axios
-        .put("http://localhost:8800/users/" + onEdit.id, userData)
-        .then(({ data }) => toast.success(data))
-        .catch(({ data }) => toast.error(data));
-    } else {
-      await axios
-        .post("http://localhost:8800/users", userData)
-        .then(({ data }) => toast.success(data))
-        .catch(({ data }) => toast.error(data));
+  
+    try {
+      if (onEdit) {
+        await axios
+          .put("http://localhost:8800/users/" + onEdit.id, userData)
+          .then(({ data }) => toast.success(data))
+          .catch(({ data }) => toast.error(data));
+      } else {
+        await axios
+          .post("http://localhost:8800/users", userData)
+          .then(({ data }) => {
+            toast.success(`User ${userData.name} added succesfull!`);
+          })
+          .catch(({ data }) => toast.error(data));
+      }
+    } catch (error) {
+      toast.error("Error adding user.");
     }
-
+  
     user.name.value = "";
     user.email.value = "";
     user.phone.value = "";
-   
-
+  
     setOnEdit(null);
     getUsers();
   };
+  
 
   return (
     <FormContainer ref={ref} onSubmit={handleSubmit}>
@@ -112,7 +116,10 @@ const Form = ({ getUsers, onEdit, setOnEdit }) => {
       </InputArea>
      
 
-      <Button type="submit">Submit</Button>
+      <Button type="submit">
+  {onEdit ? "Edit User" : "Add User"}
+</Button>
+
     </FormContainer>
   );
 };
