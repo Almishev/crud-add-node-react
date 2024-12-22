@@ -87,7 +87,10 @@ const Grid = ({ users, handleSort, sortColumn, sortOrder, setOnEdit, handleDelet
               <FaEdit onClick={() => setOnEdit(item)} style={{ cursor: "pointer", color: "blue" }} />
             </Td>
             <Td>
-              <FaTrash onClick={() => handleDelete(item.id)} style={{ cursor: "pointer", color: "red" }} />
+            <FaTrash 
+               onClick={() => handleDelete(item.id, item.name)} 
+                     style={{ cursor: "pointer", color: "red" }} 
+                  />
             </Td>
           </Tr>
         ))}

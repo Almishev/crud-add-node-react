@@ -5,6 +5,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import UserList from "./pages/UserList";
 import AddUser from "./pages/AddUser";
+import EditUser from "./pages/EditUser";
+
 
 
 
@@ -26,6 +28,8 @@ const NavLink = styled(Link)`
   }
 `;
 
+
+
 function App() {
   return (
     <Router>
@@ -33,12 +37,18 @@ function App() {
       <Nav>
         <NavLink to="/">Users</NavLink>
         <NavLink to="/add-user">Add User</NavLink>
+        <NavLink to="/login">Login</NavLink>
+        <NavLink to="/signup">Sign Up</NavLink>
+        
       </Nav>
       <Routes>
         <Route path="/" element={<UserList />} />
         <Route path="/add-user" element={<AddUser />} />
+        <Route path="/users/edit/:id" element={<EditUser />} />
+        <Route path="/login" element={<div>Login Page</div>} />
+        <Route path="/signup" element={<div>Sign Up Page</div>} />
       </Routes>
-      <ToastContainer autoClose={3000} position="bottom-left" />
+      <ToastContainer autoClose={4000} position="bottom-left" />
     </Router>
     
   );

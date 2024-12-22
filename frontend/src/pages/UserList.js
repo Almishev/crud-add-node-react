@@ -58,17 +58,17 @@ function UserList() {
     });
 
     setSortedUsers(sorted);
-    setCurrentPage(0); // Reset page number when sorting
+    setCurrentPage(0); 
   };
 
-  // Филтриране на потребители по търсене
+
   const filteredUsers = sortedUsers.filter((user) =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
     user.phone.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Разделяне на потребителите на страници след филтриране
+  
   const startIndex = currentPage * usersPerPage;
   const currentUsers = filteredUsers.slice(startIndex, startIndex + usersPerPage);
 
@@ -77,6 +77,14 @@ function UserList() {
   };
 
   const handleDelete = async (id) => {
+    // Find the user by id to get the name
+    const userToDelete = users.find((user) => user.id === id);
+  
+    if (!userToDelete) return; // Ensure user exists
+  
+    const isConfirmed = window.confirm(`Are you sure you want to delete ${userToDelete.name}?`);
+    if (!isConfirmed) return;
+  
     try {
       await axios.delete(`http://localhost:8800/users/${id}`);
       const newArray = users.filter((user) => user.id !== id);
@@ -86,6 +94,7 @@ function UserList() {
       toast.error("Error deleting user.");
     }
   };
+  
 
   return (
     <Container>
@@ -105,7 +114,7 @@ function UserList() {
       ) : (
         <>
           <Grid
-            users={currentUsers}  // Показваме само текущите потребители за тази страница
+            users={currentUsers}  
             handleSort={handleSort}
             sortColumn={sortColumn}
             sortOrder={sortOrder}
@@ -115,7 +124,7 @@ function UserList() {
           <ReactPaginate
             previousLabel={"Previous"}
             nextLabel={"Next"}
-            pageCount={Math.ceil(filteredUsers.length / usersPerPage)}  // Пагинираме филтрираните резултати
+            pageCount={Math.ceil(filteredUsers.length / usersPerPage)}  
             onPageChange={handlePageClick}
             containerClassName={"pagination"}
             activeClassName={"active"}
